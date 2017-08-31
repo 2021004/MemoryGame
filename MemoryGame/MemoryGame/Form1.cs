@@ -237,28 +237,35 @@ namespace MemoryGame
             int checkBoxClickedIndex = checkBoxs.Values.ToList().IndexOf(CheckBoxClicked) + 1;
             if (CheckBoxClicked.Checked == true)
             { // on
-                ColorDialog MyDialog = new ColorDialog();
-                MyDialog.AllowFullOpen = false;
-                MyDialog.ShowHelp = true;
-                MyDialog.Color = CheckBoxClicked.BackColor;
-                
-                if (MyDialog.ShowDialog() == DialogResult.OK)
+                if (textBoxs[checkBoxClickedIndex].Text != "")
                 {
-                    CheckBoxClicked.BackColor = MyDialog.Color;
-                    if (checkBoxClickedIndex + 1 != 6)
+                    ColorDialog MyDialog = new ColorDialog();
+                    MyDialog.AllowFullOpen = false;
+                    MyDialog.ShowHelp = true;
+                    MyDialog.Color = CheckBoxClicked.BackColor;
+
+                    if (MyDialog.ShowDialog() == DialogResult.OK)
                     {
-                        checkBoxs[(checkBoxClickedIndex + 1)].Enabled = true;
-                        textBoxs[(checkBoxClickedIndex + 1)].Enabled = true;
-                    }
-                    if (checkBox2.Checked == true && comboBox1.SelectedIndex > -1)
-                    {
-                        startButton.Enabled = true;
+                        CheckBoxClicked.BackColor = MyDialog.Color;
+                        if (checkBoxClickedIndex + 1 != 6)
+                        {
+                            checkBoxs[(checkBoxClickedIndex + 1)].Enabled = true;
+                            textBoxs[(checkBoxClickedIndex + 1)].Enabled = true;
+                        }
+                        if (checkBox2.Checked == true && comboBox1.SelectedIndex > -1)
+                        {
+                            startButton.Enabled = true;
+                        }
+                        else
+                        {
+                            startButton.Enabled = false;
+                        }
+
                     }
                     else
                     {
-                        startButton.Enabled = false;
+                        CheckBoxClicked.Checked = false;
                     }
-
                 }
                 else
                 {
@@ -272,8 +279,9 @@ namespace MemoryGame
                 {
                     checkBoxs[(j + 1)].Enabled = false;
                     checkBoxs[(j + 1)].Checked = false;
-                    checkBoxs[(j + 1)].BackColor = SystemColors.Control;
+                    checkBoxs[(j + 1)].BackColor = Color.White;
                     textBoxs[(j + 1)].Enabled = false;
+                    textBoxs[(j + 1)].Text = "";
                 }
             }
         }
@@ -293,10 +301,48 @@ namespace MemoryGame
 
         protected void item_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem toolStripMenuItemClicked = sender as ToolStripMenuItem;
-            File.Delete(Path.Combine(Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\"), "csv"), string.Format("{0}.csv", toolStripMenuItemClicked.Text)));
-            comboBoxAdditions((Size_x * Size_y) / 2);
-            name();
+            var confirmResult = MessageBox.Show("Are you sure to Delete this List ??", "Confirm Delete!!", MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                ToolStripMenuItem toolStripMenuItemClicked = sender as ToolStripMenuItem;
+                File.Delete(Path.Combine(Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\"), "csv"), string.Format("{0}.csv", toolStripMenuItemClicked.Text)));
+                comboBoxAdditions((Size_x * Size_y) / 2);
+                name();
+            }
+        }
+
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Dictionary<string, Color> teams = new Dictionary<string, Color>();
+                for (int i = 1; i < 6; i++)
+                {
+                    if (checkBoxs[i].Checked == true)
+                    {
+                        teams.Add(textBoxs[i].Text, checkBoxs[i].BackColor);
+                    }
+                }
+
+                Form3 f3 = new Form3(teams, Size_x, Size_y);
+                f3.Show();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Please refrain from haveing two teams with the same name.");
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked == true && comboBox1.SelectedIndex > -1)
+            {
+                startButton.Enabled = true;
+            }
+            else
+            {
+                startButton.Enabled = false;
+            }
         }
     }
 }
